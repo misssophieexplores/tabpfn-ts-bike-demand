@@ -20,7 +20,7 @@
 
 Visibility data for London and Washington are from Visual Crossing Weather (https://www.visualcrossing.com). Their licence does not allow redistributing the raw values, so they are not included. Run data/add_visibility.py with your own Visual Crossing API key (environment variable VISUALCROSSING_KEY) to add the column visibility_km to data/LondonBikeData.csv and data/WashingtonBikeData.csv.
 
-LondonBikeData.csv and WashingtonBikeData.csv are not included. To rebuild them, follow data/provenance/README.md, then run data/add_visibility.py (set TEST_MODE = False in line 31 first), then data/build_weather_v7.py.
+LondonBikeData.csv and WashingtonBikeData.csv are not included. To rebuild them, run `python data/rebuild_london_washington.py` from the repository root (needs VISUALCROSSING_KEY): it runs the steps in data/provenance/README.md, then data/add_visibility.py, then data/build_weather_v7.py, unchanged.
 
 Visual Crossing may revise historical data, so rebuilt visibility values, and the results that depend on them, may differ slightly from those reported in the paper.
 

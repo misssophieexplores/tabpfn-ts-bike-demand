@@ -18,7 +18,7 @@ TabPFN, TabPFN_NoWeather, XGBoost, XGBoost_NoWeather, Seasonal_Naive, ARIMA, SAR
 
 ## Data not included
 
-`data/LondonBikeData.csv` and `data/WashingtonBikeData.csv` are not included: they contain visibility values from Visual Crossing, whose licence does not allow redistributing them. `data/README_WEATHER.md` describes how to rebuild both files.
+`data/LondonBikeData.csv` and `data/WashingtonBikeData.csv` are not included: they contain visibility values from Visual Crossing, whose licence does not allow redistributing them. Rebuild both with your own Visual Crossing API key: `VISUALCROSSING_KEY=... python data/rebuild_london_washington.py` (details in `data/README_WEATHER.md`).
 
 ## Setup and run
 
