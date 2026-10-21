@@ -80,13 +80,17 @@ def main() -> None:
 
         # Visibility (Visual Crossing); TEST_MODE = False as for the paper's files
         print("\n>>> data/add_visibility.py", flush=True)
-        os.chdir(work)
-        vis = _load(DATA / "add_visibility.py")
-        if not vis.VISUALCROSSING_KEY:
-            sys.exit("VISUALCROSSING_KEY not set (environment or .env).")
-        vis.TEST_MODE = False
-        for name, cfg in vis.DATASETS.items():
-            vis.add_visibility(name, cfg["path"], cfg["location"])
+        cwd = os.getcwd()
+        os.chdir(work)               # its paths are relative (data/...)
+        try:
+            vis = _load(DATA / "add_visibility.py")
+            if not vis.VISUALCROSSING_KEY:
+                sys.exit("VISUALCROSSING_KEY not set (environment or .env).")
+            vis.TEST_MODE = False
+            for name, cfg in vis.DATASETS.items():
+                vis.add_visibility(name, cfg["path"], cfg["location"])
+        finally:
+            os.chdir(cwd)            # the temporary folder can only be removed when we are not in it
 
         # v7 weather columns and daylight-saving re-alignment
         print("\n>>> data/build_weather_v7.py (london, washington)", flush=True)
