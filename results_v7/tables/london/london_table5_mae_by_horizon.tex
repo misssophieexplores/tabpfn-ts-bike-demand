@@ -1,0 +1,15 @@
+\begin{table}[ht!]
+\centering
+\caption{MAE by forecast horizon — london (clean weather).}
+\label{tab:mae_by_horizon_london}
+\begin{tabular}{rrrrrrrrrrr}
+\toprule
+Horizon & TabPFN & XGBoost & TabPFN\_NoWeather & XGBoost\_NoWeather & Seasonal\_Naive & SARIMAX & NeuralProphet\_NoWeather & NeuralProphet & Prophet & ARIMA \\
+\midrule
+6 & 163.69 & 202.97 & 184.79 & 220.89 & 378.15 & 358.78 & 360.05 & 482.19 & 512.02 & 748.72 \\
+24 & 221.77 & 233.65 & 267.51 & 254.84 & 380.66 & 396.60 & 417.35 & 436.36 & 517.97 & 833.07 \\
+48 & 234.81 & 243.76 & 282.46 & 266.03 & 472.76 & 482.66 & 455.46 & 619.03 & 522.16 & 870.20 \\
+168 & 224.43 & 247.66 & 285.41 & 272.67 & 448.11 & 534.65 & 501.68 & 454.93 & 525.90 & 897.69 \\
+\bottomrule
+\end{tabular}
+\end{table}

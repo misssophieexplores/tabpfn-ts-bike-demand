@@ -1,0 +1,24 @@
+\begin{table}[ht!]
+\centering
+\caption{Model ranking over all cities and forecast horizons (clean weather; sMAPE and MASE: geometric mean over the 12 city-horizon tasks).}\label{tab:cross_city_overall_ranking}
+% Source: comprehensive_results_analysis_v7 notebook, Section 7c; results_v7/tables/paper/table_ranking.tex (generated, do not edit the numbers by hand)
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}clrrrr@{}}
+\toprule
+Rank & Model & sMAPE & MASE & Skill \% & 95\,\% CI \\
+\midrule
+1  & Tab\-PFN & 25.0 & 0.588 & +46.8 & 44.2 to 49.4 \\
+2  & XGBoost & 27.6 & 0.687 & +37.9 & 34.2 to 41.8 \\
+3  & Tab\-PFN\_\-NoWeather & 29.7 & 0.744 & +32.8 & 30.1 to 35.5 \\
+4  & XGBoost\_\-NoWeather & 29.0 & 0.753 & +31.9 & 28.3 to 35.8 \\
+5  & Seasonal\_Naive & 43.1 & 1.107 & 0.0 & --- \\
+6  & SARIMAX & 49.8 & 1.118 & \(-1.0\) & \(-4.3\) to 1.9 \\
+7  & Neural\-Prophet\_NoWeather & 57.5 & 1.164 & \(-5.2\) & \(-10.2\) to \(-0.6\) \\
+8  & Neural\-Prophet & 59.1 & 1.166 & \(-5.4\) & \(-11.4\) to 0.5 \\
+9  & Prophet & 54.6 & 1.235 & \(-11.6\) & \(-15.5\) to \(-8.1\) \\
+10 & ARIMA & 69.4 & 1.902 & \(-71.9\) & \(-80.0\) to \(-64.2\) \\
+\bottomrule
+\end{tabular*}
+\par\smallskip{\raggedright\footnotesize Ranked by MASE. Skill \%: skill score vs.\ Seasonal\_Naive, \(100\,(1 - \mathrm{MASE}/\mathrm{MASE}_{\text{Seasonal Naive}})\), so it gives the same order. 95\,\% CI: week block bootstrap (Section~\ref{sec:evaluation}).\par}
+\end{table}

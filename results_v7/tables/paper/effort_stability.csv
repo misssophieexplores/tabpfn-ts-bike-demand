@@ -1,0 +1,3 @@
+quantity,value_pct,model,city,horizon,definition
+X,5.2,XGBoost_NoWeather,washington,6,"max runtime_std_s / runtime_mean_s, observed weather, over TabPFN, TabPFN_NoWeather, XGBoost, XGBoost_NoWeather, all cities and horizons"
+Y,2.7,TabPFN,,168,"max over horizons and models of (max over cities / min over cities - 1) of runtime_mean_s, observed weather, over TabPFN, TabPFN_NoWeather"

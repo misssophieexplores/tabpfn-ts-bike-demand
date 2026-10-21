@@ -1,0 +1,11 @@
+model,6h_s_per_fold,24h_s_per_fold,48h_s_per_fold,168h_s_per_fold,fit_share_pct
+Seasonal_Naive,0.0,0.0,0.0,0.0,21.217
+ARIMA,0.154,0.154,0.155,0.156,99.185
+SARIMAX,127.864,125.415,124.882,118.889,99.99
+Prophet,0.058,0.057,0.059,0.07,69.537
+NeuralProphet,10.849,10.933,10.627,15.654,0.009
+NeuralProphet_NoWeather,10.317,10.388,10.127,14.909,0.001
+XGBoost,1.585,1.645,1.717,1.997,97.66
+XGBoost_NoWeather,2.823,2.843,2.897,3.132,98.806
+TabPFN,3.139,3.188,3.274,3.705,0.047
+TabPFN_NoWeather,2.587,2.651,2.713,3.038,0.02

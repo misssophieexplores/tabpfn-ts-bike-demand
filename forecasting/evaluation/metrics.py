@@ -1,0 +1,641 @@
+"""
+Forecasting evaluation metrics.
+"""
+import numpy as np
+import warnings
+from typing import Dict, Optional
+from pathlib import Path
+import pandas as pd
+
+class MetricsCalculator:
+    """Calculate forecasting performance metrics"""
+
+    @staticmethod
+    def observed_mask(df: pd.DataFrame, functioning_day_col: Optional[str]) -> np.ndarray:
+        """
+        Boolean mask over the rows of df: True = observed (scored), False =
+        imputed (functioning_day_col == 'No'). All True if the column is not
+        configured or not present.
+        """
+        if functioning_day_col and functioning_day_col in df.columns:
+            return (df[functioning_day_col] != 'No').to_numpy()
+        return np.ones(len(df), dtype=bool)
+    
+    @staticmethod
+    def mae(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+        """
+        Mean Absolute Error.
+        
+        Parameters:
+        -----------
+        y_true : np.ndarray
+            Actual values
+        y_pred : np.ndarray
+            Predicted values
+            
+        Returns:
+        --------
+        float
+            MAE value
+        """
+        return float(np.mean(np.abs(y_true - y_pred)))
+    
+    @staticmethod
+    def rmse(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+        """
+        Root Mean Squared Error.
+        
+        Parameters:
+        -----------
+        y_true : np.ndarray
+            Actual values
+        y_pred : np.ndarray
+            Predicted values
+            
+        Returns:
+        --------
+        float
+            RMSE value
+        """
+        return float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
+    
+    @staticmethod
+    def mase(
+        y_true: np.ndarray, 
+        y_pred: np.ndarray, 
+        y_train: np.ndarray, 
+        seasonal_period: int = 24,
+        train_mask: Optional[np.ndarray] = None,
+    ) -> float:
+        """
+        Mean Absolute Scaled Error.
+        
+        Scales forecast error by naive seasonal forecast error on training set.
+        Values < 1 indicate better than naive seasonal forecast.
+        
+        Parameters:
+        -----------
+        y_true : np.ndarray
+            Actual values
+        y_pred : np.ndarray
+            Predicted values
+        y_train : np.ndarray
+            Training set values (for scaling)
+        seasonal_period : int
+            Seasonal period (24 for hourly data with daily seasonality)
+        train_mask : np.ndarray of bool, optional
+            True = observed training value. Seasonal-naive pairs
+            (t, t - seasonal_period) are used for scaling only if both values
+            are observed; imputed training values are excluded.
+            
+        Returns:
+        --------
+        float
+            MASE value
+        """
+        # Calculate naive seasonal forecast error on training set
+        naive_errors = np.abs(y_train[seasonal_period:] - y_train[:-seasonal_period])
+        if train_mask is not None:
+            train_mask = np.asarray(train_mask, dtype=bool)
+            naive_errors = naive_errors[train_mask[seasonal_period:] & train_mask[:-seasonal_period]]
+        if naive_errors.size == 0:
+            return float("nan")
+        mae_naive = np.mean(naive_errors)
+        
+        # Calculate forecast error
+        mae_forecast = np.mean(np.abs(y_true - y_pred))
+        
+        # Return scaled error
+        if mae_naive == 0:
+            return np.inf
+        return float(mae_forecast / mae_naive)
+    
+    @staticmethod
+    def smape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+        """
+        Symmetric Mean Absolute Percentage Error.
+
+        Per step: |y - yhat| / ((|y| + |yhat|) / 2), averaged, times 100.
+        Range [0, 200]: a step with y = 0 and yhat != 0 contributes 200;
+        a step with y = yhat = 0 contributes 0.
+        
+        Parameters:
+        -----------
+        y_true : np.ndarray
+            Actual values
+        y_pred : np.ndarray
+            Predicted values
+            
+        Returns:
+        --------
+        float
+            sMAPE value (percentage)
+        """
+        denominator = (np.abs(y_true) + np.abs(y_pred)) / 2
+        
+        # Avoid division by zero
+        mask = denominator != 0
+        with np.errstate(divide="ignore", invalid="ignore"):
+            smape_values = np.where(
+                mask,
+                np.abs(y_true - y_pred) / denominator,
+                0
+            )
+        
+        return float(100 * np.mean(smape_values))
+
+    @staticmethod
+    def win_rate(
+        errors_j: np.ndarray,
+        errors_k: np.ndarray,
+    ) -> float:
+        """
+        Pairwise Win Rate of model j against model k across tasks.
+
+        Represents the fraction of tasks where model j achieves lower error
+        than model k. Ties count as half-wins for each model.
+
+        Equation (6) from fev-bench (Shchur et al., 2026):
+            W_jk = (1/R) * sum_r [ 1(E_rj < E_rk) + 0.5 * 1(E_rj == E_rk) ]
+
+        Parameters:
+        -----------
+        errors_j : np.ndarray, shape (R,)
+            Per-task errors for model j (e.g. MASE averaged over eval windows).
+        errors_k : np.ndarray, shape (R,)
+            Per-task errors for model k.
+
+        Returns:
+        --------
+        float
+            Win rate in [0, 1]. Values above 0.5 indicate model j outperforms
+            model k on the majority of tasks.
+        """
+        if errors_j.shape != errors_k.shape:
+            raise ValueError(
+                f"errors_j and errors_k must have the same shape, "
+                f"got {errors_j.shape} vs {errors_k.shape}"
+            )
+        wins = np.sum(errors_j < errors_k) + 0.5 * np.sum(errors_j == errors_k)
+        return float(wins / len(errors_j))
+
+    @staticmethod
+    def skill_score(
+        errors_j: np.ndarray,
+        errors_baseline: np.ndarray,
+        clip_lower: float = 1e-2,
+        clip_upper: float = 1e2,
+    ) -> float:
+        """
+        Pairwise Skill Score of model j relative to a baseline model.
+
+        Quantifies the average error reduction of model j over the baseline
+        using a geometrically-aggregated relative error, clipped to avoid
+        distortion from extreme values.
+
+        Equation (7) from fev-bench (Shchur et al., 2026):
+            S_j = 1 - geomean( clip(E_rj / E_r_baseline; lower, upper) )
+
+        A score of 0 means parity with the baseline; positive values indicate
+        improvement; negative values indicate underperformance.
+
+        Parameters:
+        -----------
+        errors_j : np.ndarray, shape (R,)
+            Per-task errors for model j.
+        errors_baseline : np.ndarray, shape (R,)
+            Per-task errors for the baseline model (e.g. Seasonal Naive).
+        clip_lower : float
+            Lower clipping bound for relative errors (default: 1e-2).
+        clip_upper : float
+            Upper clipping bound for relative errors (default: 1e2).
+
+        Returns:
+        --------
+        float
+            Skill score. Positive = better than baseline, negative = worse.
+        """
+        if errors_j.shape != errors_baseline.shape:
+            raise ValueError(
+                f"errors_j and errors_baseline must have the same shape, "
+                f"got {errors_j.shape} vs {errors_baseline.shape}"
+            )
+
+        # Zero baseline errors are real (e.g. Seasonal Naive predicts a
+        # zero-demand task perfectly). Rather than dropping these tasks
+        # (which would bias the score by removing the baseline's strongest
+        # cases), handle them at the limits the clip bounds already encode:
+        #   baseline == 0, model  > 0  -> ratio +inf -> clip_upper (model maximally worse)
+        #   baseline == 0, model == 0  -> ratio 1.0 (both perfect -> parity)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            relative_errors = errors_j / errors_baseline
+        relative_errors = np.where(
+            (errors_baseline == 0) & (errors_j == 0), 1.0, relative_errors
+        )
+        clipped = np.clip(relative_errors, clip_lower, clip_upper)
+        geom_mean = float(np.exp(np.mean(np.log(clipped))))
+        return float(1.0 - geom_mean)
+
+    @staticmethod
+    def win_rate_with_ci(
+        errors_j: np.ndarray,
+        errors_k: np.ndarray,
+        n_bootstrap: int = 1000,
+        confidence: float = 0.95,
+        seed: Optional[int] = None,
+    ) -> Dict[str, float]:
+        """
+        Pairwise Win Rate with bootstrapped confidence interval.
+
+        Uses paired bootstrap over tasks (Efron, 1992) as described in
+        Section 4.3 of fev-bench (Shchur et al., 2026). Draws R tasks with
+        replacement B times to estimate the sampling distribution of W_jk.
+
+        Parameters:
+        -----------
+        errors_j : np.ndarray, shape (R,)
+            Per-task errors for model j.
+        errors_k : np.ndarray, shape (R,)
+            Per-task errors for model k.
+        n_bootstrap : int
+            Number of bootstrap samples (default: 1000).
+        confidence : float
+            Confidence level for the interval (default: 0.95).
+        seed : int, optional
+            Random seed for reproducibility.
+
+        Returns:
+        --------
+        Dict[str, float]
+            {
+              'win_rate': point estimate,
+              'ci_lower': lower bound,
+              'ci_upper': upper bound,
+            }
+        """
+        rng = np.random.default_rng(seed)
+        R = len(errors_j)
+        point_estimate = MetricsCalculator.win_rate(errors_j, errors_k)
+
+        bootstrap_stats = []
+        for _ in range(n_bootstrap):
+            idx = rng.integers(0, R, size=R)
+            bootstrap_stats.append(
+                MetricsCalculator.win_rate(errors_j[idx], errors_k[idx])
+            )
+
+        alpha = 1.0 - confidence
+        ci_lower = float(np.quantile(bootstrap_stats, alpha / 2))
+        ci_upper = float(np.quantile(bootstrap_stats, 1 - alpha / 2))
+
+        return {
+            'win_rate': point_estimate,
+            'ci_lower': ci_lower,
+            'ci_upper': ci_upper,
+        }
+
+    @staticmethod
+    def skill_score_with_ci(
+        errors_j: np.ndarray,
+        errors_baseline: np.ndarray,
+        clip_lower: float = 1e-2,
+        clip_upper: float = 1e2,
+        n_bootstrap: int = 1000,
+        confidence: float = 0.95,
+        seed: Optional[int] = None,
+    ) -> Dict[str, float]:
+        """
+        Pairwise Skill Score with bootstrapped confidence interval.
+
+        Uses paired bootstrap over tasks (Efron, 1992) as described in
+        Section 4.3 of fev-bench (Shchur et al., 2026).
+
+        Parameters:
+        -----------
+        errors_j : np.ndarray, shape (R,)
+            Per-task errors for model j.
+        errors_baseline : np.ndarray, shape (R,)
+            Per-task errors for the baseline model.
+        clip_lower : float
+            Lower clipping bound for relative errors (default: 1e-2).
+        clip_upper : float
+            Upper clipping bound for relative errors (default: 1e2).
+        n_bootstrap : int
+            Number of bootstrap samples (default: 1000).
+        confidence : float
+            Confidence level for the interval (default: 0.95).
+        seed : int, optional
+            Random seed for reproducibility.
+
+        Returns:
+        --------
+        Dict[str, float]
+            {
+              'skill_score': point estimate,
+              'ci_lower': lower bound,
+              'ci_upper': upper bound,
+            }
+        """
+        rng = np.random.default_rng(seed)
+        R = len(errors_j)
+        point_estimate = MetricsCalculator.skill_score(
+            errors_j, errors_baseline, clip_lower, clip_upper
+        )
+
+        bootstrap_stats = []
+        for _ in range(n_bootstrap):
+            idx = rng.integers(0, R, size=R)
+            bootstrap_stats.append(
+                MetricsCalculator.skill_score(
+                    errors_j[idx], errors_baseline[idx], clip_lower, clip_upper
+                )
+            )
+
+        alpha = 1.0 - confidence
+        ci_lower = float(np.quantile(bootstrap_stats, alpha / 2))
+        ci_upper = float(np.quantile(bootstrap_stats, 1 - alpha / 2))
+
+        return {
+            'skill_score': point_estimate,
+            'ci_lower': ci_lower,
+            'ci_upper': ci_upper,
+        }
+
+    @classmethod
+    def calculate_all(
+        cls, 
+        y_true: np.ndarray, 
+        y_pred: np.ndarray, 
+        y_train: np.ndarray,
+        test_mask: Optional[np.ndarray] = None,
+        train_mask: Optional[np.ndarray] = None,
+    ) -> Dict[str, float]:
+        """
+        Calculate all per-series metrics at once.
+
+        Note: win_rate and skill_score operate across tasks (error vectors),
+        not on individual series. Use them separately after collecting
+        per-task errors across models.
+        
+        Parameters:
+        -----------
+        y_true : np.ndarray
+            Actual values
+        y_pred : np.ndarray
+            Predicted values
+        y_train : np.ndarray
+            Training set values (for MASE calculation)
+        test_mask : np.ndarray of bool, optional
+            True = observed test value. Only these steps are scored; imputed
+            steps (Functioning Day == 'No') are excluded.
+        train_mask : np.ndarray of bool, optional
+            True = observed training value (MASE scaling, see mase()).
+            
+        Returns:
+        --------
+        Dict[str, float]
+            Dictionary with all metric values; all NaN if no test step is
+            observed.
+        """
+        y_true = np.asarray(y_true, dtype=float).ravel()
+        y_pred = np.asarray(y_pred, dtype=float).ravel()
+        y_train = np.asarray(y_train, dtype=float)
+        # A wrong-length or NaN forecast must fail loudly: NaN metrics are
+        # reserved for fully imputed test windows and are skipped in the means.
+        if y_pred.shape != y_true.shape:
+            raise ValueError(f"y_pred has {y_pred.size} values, y_true has {y_true.size}")
+        if not np.all(np.isfinite(y_pred)):
+            raise ValueError(f"y_pred contains {int((~np.isfinite(y_pred)).sum())} non-finite values")
+        if test_mask is not None:
+            test_mask = np.asarray(test_mask, dtype=bool)
+            y_true = y_true[test_mask]
+            y_pred = y_pred[test_mask]
+        if y_true.size == 0:
+            return {'MAE': np.nan, 'RMSE': np.nan, 'MASE': np.nan, 'sMAPE': np.nan}
+        return {
+            'MAE': cls.mae(y_true, y_pred),
+            'RMSE': cls.rmse(y_true, y_pred),
+            'MASE': cls.mase(y_true, y_pred, y_train, train_mask=train_mask),
+            'sMAPE': cls.smape(y_true, y_pred)
+        }
+
+    @staticmethod
+    def compute_comparative_metrics(
+        results_df,
+        baseline_model: str = "Seasonal_Naive",
+        error_column: str = "MASE_mean",
+        task_cols=("dataset", "horizon", "weather_scenario"),
+        seed: int = 42,
+        error_log_path=None,
+    ):
+        import pandas as pd
+
+        task_cols = list(task_cols)
+
+        if baseline_model not in results_df['model'].values:
+            raise ValueError(
+                f"Baseline model '{baseline_model}' not found in results_df. "
+                f"Available models: {sorted(results_df['model'].unique().tolist())}"
+            )
+
+        # One error per (task, model). A task is (dataset, horizon,
+        # weather_scenario): the aggregated grain, with folds already
+        # summarized into MASE_mean. Bootstrap resamples these tasks.
+        # Duplicate rows (e.g. from two runs in one results file) would be
+        # averaged silently by the pivot, so they are rejected.
+        dup = results_df.duplicated(subset=task_cols + ['model'], keep=False)
+        if dup.any():
+            raise ValueError(
+                f"{int(dup.sum())} rows share (task, model) in the results file; "
+                f"expected exactly one row each. Duplicates:\n"
+                f"{results_df.loc[dup, task_cols + ['model']].to_string(index=False)}"
+            )
+        pivot = results_df.pivot_table(
+            index=task_cols,
+            columns='model',
+            values=error_column,
+            aggfunc='mean',
+        )
+
+        if baseline_model not in pivot.columns:
+            raise ValueError(f"Baseline '{baseline_model}' missing after pivot.")
+
+        # The baseline (Seasonal Naive) is weather-agnostic: it ran in
+        # clean_only only, but its error is the SAME for clean and degraded
+        # (it ignores covariates). So broadcast the baseline error across
+        # scenarios — look it up by (dataset, horizon), dropping the scenario
+        # level — so every model task (clean OR degraded) is compared against
+        # the same Seasonal Naive error. A degraded covariate model thus
+        # measures "actual weather forecast vs previous-24h naive".
+        match_cols = [c for c in task_cols if c != "weather_scenario"]
+        if not match_cols:
+            match_cols = task_cols  # no scenario dim; match on full key
+
+        # baseline error per (dataset, horizon), taken from the rows where the
+        # baseline actually ran. If it ran in several scenarios the errors must
+        # be identical (it ignores covariates); otherwise something is wrong.
+        base_rows = results_df[results_df['model'] == baseline_model]
+        spread = base_rows.groupby(match_cols)[error_column].agg(lambda s: s.max() - s.min())
+        if (spread > 1e-9).any():
+            raise ValueError(
+                f"Baseline '{baseline_model}' has different {error_column} across "
+                f"scenarios for: {spread[spread > 1e-9].index.tolist()}"
+            )
+        baseline_lookup = base_rows.groupby(match_cols)[error_column].first()
+
+        # Fail loudly if the baseline is missing any (dataset, horizon) that a
+        # model was evaluated on — those comparisons would silently drop.
+        needed = (
+            results_df[results_df['model'] != baseline_model]
+            .groupby(match_cols).size().index
+        )
+        missing = [k for k in needed if k not in baseline_lookup.index]
+        if missing:
+            raise ValueError(
+                f"Baseline '{baseline_model}' is missing {len(missing)} "
+                f"{tuple(match_cols)} cell(s) that other models were run on. "
+                f"These comparisons would silently drop. Missing: {missing}"
+            )
+
+        # Align the broadcast baseline to every task row in the pivot index.
+        match_pos = [task_cols.index(c) for c in match_cols]
+        def _baseline_for(task_key):
+            if not isinstance(task_key, tuple):
+                task_key = (task_key,)
+            key = tuple(task_key[p] for p in match_pos)
+            key = key[0] if len(key) == 1 else key
+            return baseline_lookup.get(key, np.nan)
+
+        baseline_errors = np.array([_baseline_for(idx) for idx in pivot.index])
+        rows = []
+
+        # Scenario for each pivot row, used to split comparisons by scenario
+        # so each (model, scenario) is its own vs-baseline comparison.
+        if "weather_scenario" in task_cols:
+            scen_pos = task_cols.index("weather_scenario")
+            scen_of_row = np.array([
+                (idx[scen_pos] if isinstance(idx, tuple) else idx)
+                for idx in pivot.index
+            ])
+        else:
+            scen_of_row = np.array([None] * len(pivot.index))
+        scenarios = list(dict.fromkeys(scen_of_row.tolist()))
+
+        for model_name in pivot.columns:
+            if model_name == baseline_model:
+                continue
+
+            model_errors = pivot[model_name].values
+
+            for scenario in scenarios:
+                in_scen = scen_of_row == scenario
+                # Both non-NaN AND in this scenario. Baseline is broadcast by
+                # (dataset, horizon), so a degraded covariate model compares
+                # against the same clean Seasonal Naive error.
+                valid = in_scen & ~(np.isnan(model_errors) | np.isnan(baseline_errors))
+
+                if valid.sum() < 2:
+                    msg = (
+                        f"[WARN] Skipping {model_name} ({scenario}) vs "
+                        f"{baseline_model}: only {valid.sum()} shared tasks, "
+                        f"need at least 2."
+                    )
+                    if error_log_path is not None:
+                        with open(error_log_path, "a") as f:
+                            f.write(f"\n{msg}\n")
+                    continue
+
+                errs_j = model_errors[valid]
+                errs_b = baseline_errors[valid]
+
+                wr = MetricsCalculator.win_rate_with_ci(errs_j, errs_b, seed=seed)
+                ss = MetricsCalculator.skill_score_with_ci(errs_j, errs_b, seed=seed)
+
+                rows.append({
+                    'model': model_name,
+                    'weather_scenario': scenario,
+                    'baseline': baseline_model,
+                    'n_tasks': int(valid.sum()),
+                    'win_rate': wr['win_rate'],
+                    'win_rate_ci_lower': wr['ci_lower'],
+                    'win_rate_ci_upper': wr['ci_upper'],
+                    'skill_score': ss['skill_score'],
+                    'skill_score_ci_lower': ss['ci_lower'],
+                    'skill_score_ci_upper': ss['ci_upper'],
+                })
+
+        return pd.DataFrame(rows)
+
+    @staticmethod
+    def compute_and_save_comparative_metrics(
+        results_csv_path,
+        output_dir,
+        version,
+        baseline_model="Seasonal_Naive",
+        error_column="MASE_mean",
+    ):
+        import pandas as pd
+        if isinstance(results_csv_path, pd.DataFrame):
+            df = results_csv_path
+        else:
+            df = pd.read_csv(results_csv_path)
+        # Do NOT group by dataset: that would shrink each comparison to
+        # (horizon x scenario) tasks per dataset. Dataset is a task key,
+        # so all datasets are pooled into one comparison.
+        combined = MetricsCalculator.compute_comparative_metrics(
+            df, baseline_model=baseline_model, error_column=error_column
+        )
+        out = Path(output_dir) / f"comparative_metrics_{version}.csv"
+        combined.to_csv(out, index=False)
+        return combined
+
+## NOT USED YET
+@staticmethod
+def compute_pairwise_win_rate_matrix(
+    results_df: pd.DataFrame,
+    error_column: str = "MASE_mean",
+    task_keys: tuple = ("horizon", "weather_scenario"),
+) -> pd.DataFrame:
+    """
+    Full pairwise win-rate matrix W where W[j, k] is the fraction of
+    tasks on which model j beats model k (half-credit for ties).
+
+    Diagonal is set to 0.5 (tie vs. self). Off-diagonal cells use only
+    tasks where both models j and k have a non-NaN error.
+
+    Parameters
+    ----------
+    results_df : pd.DataFrame
+        Aggregated results, one row per (model, *task_keys).
+    error_column : str
+        Column to use as the per-task error (default: 'MASE_mean').
+    task_keys : tuple of str
+        Columns that jointly identify a task.
+
+    Returns
+    -------
+    pd.DataFrame
+        Square DataFrame indexed and columned by model name, values in [0, 1].
+    """
+    pivot = results_df.pivot_table(
+        index=list(task_keys),
+        columns="model",
+        values=error_column,
+    )
+    models = pivot.columns.tolist()
+    mat = pd.DataFrame(np.nan, index=models, columns=models, dtype=float)
+
+    for j in models:
+        for k in models:
+            if j == k:
+                mat.loc[j, k] = 0.5
+                continue
+            ej = pivot[j]
+            ek = pivot[k]
+            valid = ej.notna() & ek.notna()
+            if valid.sum() < 1:
+                continue
+            mat.loc[j, k] = MetricsCalculator.win_rate(
+                ej[valid].values, ek[valid].values
+            )
+    return mat

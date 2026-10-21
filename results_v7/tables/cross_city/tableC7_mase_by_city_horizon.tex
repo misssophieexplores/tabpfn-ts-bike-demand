@@ -1,0 +1,20 @@
+\begin{table}[ht!]
+\centering
+\caption{MASE by city and horizon (clean weather) — TabPFN, XGBoost, TabPFN\_NoWeather, Seasonal\_Naive.}
+\label{tab:mase_by_city_horizon}
+{\small
+\setlength{\tabcolsep}{3pt}
+\scriptsize
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+Model & \multicolumn{4}{c}{Seoul} & \multicolumn{4}{c}{London} & \multicolumn{4}{c}{Washington} \\
+  & 6h & 24h & 48h & 168h & 6h & 24h & 48h & 168h & 6h & 24h & 48h & 168h \\
+\midrule
+TabPFN & 0.502 & 0.668 & 0.736 & 0.787 & 0.436 & 0.594 & 0.631 & 0.609 & 0.446 & 0.563 & 0.611 & 0.579 \\
+XGBoost & 0.644 & 0.812 & 0.885 & 1.001 & 0.543 & 0.629 & 0.656 & 0.675 & 0.551 & 0.639 & 0.681 & 0.659 \\
+TabPFN\_NoWeather & 0.633 & 0.971 & 1.104 & 1.200 & 0.492 & 0.714 & 0.756 & 0.766 & 0.503 & 0.685 & 0.713 & 0.706 \\
+Seasonal\_Naive & 1.070 & 1.082 & 1.244 & 1.230 & 1.005 & 1.018 & 1.263 & 1.196 & 0.964 & 0.969 & 1.218 & 1.086 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

@@ -1,0 +1,16 @@
+A,B,skill_%,skill_lo,skill_hi,win_rate_%,win_lo,win_hi,significant
+"TabPFN, observed weather","TabPFN, forecast weather",6.45,5.42,7.47,100.0,100.0,100.0,True
+"TabPFN, observed weather","XGBoost, observed weather",14.38,10.43,18.08,100.0,83.33,100.0,True
+"TabPFN, observed weather","XGBoost, forecast weather",16.3,12.46,19.99,100.0,91.67,100.0,True
+"TabPFN, observed weather","TabPFN, no weather",20.91,18.33,23.63,100.0,100.0,100.0,True
+"TabPFN, observed weather","XGBoost, no weather",21.91,17.72,25.74,100.0,100.0,100.0,True
+"TabPFN, forecast weather","XGBoost, observed weather",8.48,4.12,12.32,100.0,66.67,100.0,True
+"TabPFN, forecast weather","XGBoost, forecast weather",10.53,6.34,14.29,100.0,75.0,100.0,True
+"TabPFN, forecast weather","TabPFN, no weather",15.46,13.01,17.91,100.0,91.67,100.0,True
+"TabPFN, forecast weather","XGBoost, no weather",16.53,12.29,20.43,100.0,91.67,100.0,True
+"XGBoost, observed weather","XGBoost, forecast weather",2.25,1.57,2.93,100.0,91.67,100.0,True
+"XGBoost, observed weather","TabPFN, no weather",7.63,3.45,11.92,75.0,58.33,83.33,True
+"XGBoost, observed weather","XGBoost, no weather",8.8,6.95,10.69,100.0,100.0,100.0,True
+"XGBoost, forecast weather","TabPFN, no weather",5.51,1.45,9.53,75.0,50.0,83.33,True
+"XGBoost, forecast weather","XGBoost, no weather",6.7,5.19,8.31,100.0,100.0,100.0,True
+"TabPFN, no weather","XGBoost, no weather",1.27,-3.07,5.02,33.33,25.0,75.0,False

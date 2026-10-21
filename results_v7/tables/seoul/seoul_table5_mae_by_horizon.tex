@@ -1,0 +1,15 @@
+\begin{table}[ht!]
+\centering
+\caption{MAE by forecast horizon — seoul (clean weather).}
+\label{tab:mae_by_horizon_seoul}
+\begin{tabular}{rrrrrrrrrrr}
+\toprule
+Horizon & TabPFN & XGBoost & TabPFN\_NoWeather & XGBoost\_NoWeather & Seasonal\_Naive & SARIMAX & NeuralProphet\_NoWeather & NeuralProphet & Prophet & ARIMA \\
+\midrule
+6 & 146.96 & 187.16 & 186.35 & 209.69 & 315.78 & 247.28 & 275.69 & 250.16 & 329.55 & 417.63 \\
+24 & 192.30 & 234.39 & 284.95 & 278.08 & 316.61 & 299.27 & 369.04 & 318.58 & 338.16 & 523.48 \\
+48 & 212.08 & 252.95 & 326.29 & 299.59 & 361.04 & 341.82 & 435.88 & 355.56 & 342.74 & 528.25 \\
+168 & 219.65 & 273.17 & 346.58 & 311.53 & 346.50 & 422.38 & 482.06 & 396.19 & 354.47 & 553.42 \\
+\bottomrule
+\end{tabular}
+\end{table}

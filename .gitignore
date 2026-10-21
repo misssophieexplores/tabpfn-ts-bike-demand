@@ -1,0 +1,16 @@
+# Visual Crossing licence: raw visibility values may not be redistributed.
+# Rebuild these two files locally, see data/README_WEATHER.md.
+data/LondonBikeData.csv
+data/WashingtonBikeData.csv
+
+.env
+__pycache__
+wandb/
+forecasting/testing/wandb
+forecasting/testing/weather_partial_test
+*.ckpt
+.lr_find_*
+lightning_logs
+results/results_master_t*
+results/detailed_results_master_t*
+checkpoint_*_t*

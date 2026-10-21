@@ -1,0 +1,5 @@
+dataset,seoul,seoul,seoul,seoul,london,london,london,london,washington,washington,washington,washington
+horizon,6,24,48,168,6,24,48,168,6,24,48,168
+model,,,,,,,,,,,,
+TabPFN,0.541,0.704,0.804,0.905,0.47,0.624,0.651,0.652,0.48,0.592,0.64,0.611
+XGBoost,0.665,0.836,0.908,1.04,0.556,0.645,0.667,0.696,0.559,0.644,0.69,0.671

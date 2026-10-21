@@ -1,0 +1,23 @@
+\begin{table}[ht!]
+\centering
+\caption{MASE across all cities and forecast horizons: top 4 models vs.\ baseline (clean weather), and Tab\-PFN and XGBoost with degraded weather.}~\label{tab:mase_cross_city}
+% Source: comprehensive_results_analysis_v7 notebook, Section 7e; results_v7/tables/paper/table_mase_city_horizon.tex (generated, do not edit the numbers by hand)
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lrrrrrrrrrrrr}
+\toprule
+ & \multicolumn{4}{c}{London} & \multicolumn{4}{c}{Seoul} & \multicolumn{4}{c}{Washington} \\
+ & 6 & 24 & 48 & 168 & 6 & 24 & 48 & 168 & 6 & 24 & 48 & 168 \\
+\midrule
+Tab\-PFN & 0.436 & 0.594 & 0.631 & 0.609 & 0.502 & 0.668 & 0.736 & 0.787 & 0.446 & 0.563 & 0.611 & 0.579 \\
+XGBoost & 0.543 & 0.629 & 0.656 & 0.675 & 0.644 & 0.812 & 0.885 & 1.001 & 0.551 & 0.639 & 0.681 & 0.659 \\
+Tab\-PFN\_\-NoWeather & 0.492 & 0.714 & 0.756 & 0.766 & 0.633 & 0.971 & 1.104 & 1.200 & 0.503 & 0.685 & 0.713 & 0.706 \\
+XGBoost\_\-NoWeather & 0.589 & 0.683 & 0.712 & 0.739 & 0.718 & 0.943 & 1.037 & 1.124 & 0.594 & 0.674 & 0.719 & 0.694 \\
+Seasonal\_Naive & 1.005 & 1.018 & 1.263 & 1.196 & 1.070 & 1.082 & 1.244 & 1.230 & 0.964 & 0.969 & 1.218 & 1.086 \\
+\midrule
+\multicolumn{13}{l}{\textit{Degraded weather}} \\
+Tab\-PFN & 0.470 & 0.624 & 0.651 & 0.652 & 0.541 & 0.704 & 0.804 & 0.905 & 0.480 & 0.592 & 0.640 & 0.611 \\
+XGBoost & 0.556 & 0.645 & 0.667 & 0.696 & 0.665 & 0.836 & 0.908 & 1.040 & 0.559 & 0.644 & 0.690 & 0.671 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

@@ -1,0 +1,22 @@
+\begin{table}[h]
+\centering
+\caption{Loss of accuracy with forecast weather, Tab\-PFN and XGBoost, by forecast horizon. MASE: geometric mean across cities; last row: over all 12 city--horizon combinations. Change: increase in MASE from observed to forecast weather, with 95\,\% CI.}\label{tab:degradation_horizon_top2}
+% Source: comprehensive_results_analysis_v7 notebook, Section 7b; results_v7/tables/paper/table_forecast_weather_loss.tex (generated, do not edit the numbers by hand)
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{crrrrrr}
+\toprule
+ & \multicolumn{3}{c}{Tab\-PFN} & \multicolumn{3}{c}{XGBoost} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Horizon & Observed & Forecast & Change \% (95\,\% CI) & Observed & Forecast & Change \% (95\,\% CI) \\
+\midrule
+6   & 0.461 & 0.496 & \(+7.7\) (6.2--9.2) & 0.578 & 0.591 & \(+2.3\) (1.7--3.1) \\
+24  & 0.607 & 0.638 & \(+5.2\) (3.9--6.6) & 0.688 & 0.703 & \(+2.1\) (1.3--3.0) \\
+48  & 0.657 & 0.694 & \(+5.7\) (4.2--7.2) & 0.734 & 0.747 & \(+1.8\) (1.1--2.5) \\
+168 & 0.652 & 0.712 & \(+9.1\) (7.1--11.3) & 0.764 & 0.786 & \(+2.9\) (1.2--4.7) \\
+\midrule
+Geo.\ mean & 0.588 & 0.629 & \(+6.9\) (5.7--8.1) & 0.687 & 0.703 & \(+2.3\) (1.6--3.0) \\
+\bottomrule
+\end{tabular}%
+}
+\par\smallskip{\raggedright\footnotesize Percentages: change from observed to forecast weather, computed for each city and horizon and averaged geometrically; they equal the ratio of the adjacent MASE values.\par}
+\end{table}

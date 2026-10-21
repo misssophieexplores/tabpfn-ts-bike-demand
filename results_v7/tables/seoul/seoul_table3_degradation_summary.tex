@@ -1,0 +1,15 @@
+\begin{table}[h]
+\centering
+\caption{Performance degradation — seoul. MAE: geometric mean across horizons; Increase \%: geometric mean of the per-horizon degraded/clean ratios.}
+\label{tab:degradation_summary_seoul}
+\begin{tabular}{lrrrr}
+\toprule
+Model & Clean MAE & Degraded MAE & Increase & Increase \% \\
+\midrule
+SARIMAX & 321.50 & 332.46 & 10.96 & 3.41 \\
+XGBoost & 234.64 & 243.31 & 8.67 & 3.69 \\
+NeuralProphet & 325.51 & 345.40 & 19.89 & 6.11 \\
+TabPFN & 190.48 & 209.42 & 18.94 & 9.94 \\
+\bottomrule
+\end{tabular}
+\end{table}

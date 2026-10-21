@@ -1,0 +1,23 @@
+\begin{table}[htbp]
+\centering
+\caption{Computational effort per model. Tuning: wall-clock time of the tuning run (search and final check on the 90 tuning folds, Section~3.2), range over the three cities, on 4 CPU cores (XGBoost and XGBoost\_NoWeather: 8); Seasonal\_Naive, TabPFN and TabPFN\_NoWeather are not tuned. Forecasting: time to fit the model and forecast one test window, mean over all folds and the three cities with observed weather (with forecast weather the times differ by at most 6\,\%), in one run with 16 CPU cores; SARIMAX fitted 16 folds at a time, each on one core, all other models one fold at a time with all cores. All runs on CPU, on one server with 2~$\times$~56-core x86-64 CPUs and 2~TB RAM (NOVA DAH~02).}
+\label{tab:effort}
+\begin{tabular}{lrrrrr}
+\toprule
+ & Tuning time & \multicolumn{4}{c}{Forecasting time per fold (s)} \\
+\cmidrule(lr){3-6}
+Model & per city & 6~h & 24~h & 48~h & 168~h \\
+\midrule
+Seasonal\_Naive & -- & $<$0.01 & $<$0.01 & $<$0.01 & $<$0.01 \\
+ARIMA & 0.6--1.8 min & 0.15 & 0.15 & 0.15 & 0.16 \\
+SARIMAX & 4.8--6.8 h & 128 & 125 & 125 & 119 \\
+Prophet & 4.9--5.3 min & 0.06 & 0.06 & 0.06 & 0.07 \\
+NeuralProphet & 20.7--20.9 min & 10.8 & 10.9 & 10.6 & 15.7 \\
+NeuralProphet\_NoWeather & 19.8 min & 10.3 & 10.4 & 10.1 & 14.9 \\
+XGBoost & 4.3--5.7 h & 1.59 & 1.65 & 1.72 & 2.00 \\
+XGBoost\_NoWeather & 3.7--4.8 h & 2.82 & 2.84 & 2.90 & 3.13 \\
+TabPFN & -- & 3.14 & 3.19 & 3.27 & 3.71 \\
+TabPFN\_NoWeather & -- & 2.59 & 2.65 & 2.71 & 3.04 \\
+\bottomrule
+\end{tabular}
+\end{table}

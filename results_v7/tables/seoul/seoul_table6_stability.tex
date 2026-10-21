@@ -1,0 +1,25 @@
+\begin{table}[h]
+\centering
+\caption{Model stability — seoul: coefficient of variation (\%) of fold-level MAE, by forecast horizon.}
+\label{tab:stability_seoul}
+\begin{tabular}{llrrrr}
+\toprule
+Model & Scenario & 6h & 24h & 48h & 168h \\
+\midrule
+ARIMA & clean\_only & 48.89 & 28.97 & 23.98 & 24.26 \\
+NeuralProphet & clean\_only & 73.17 & 50.36 & 45.69 & 39.30 \\
+NeuralProphet & degraded & 71.38 & 51.53 & 45.95 & 37.93 \\
+NeuralProphet\_NoWeather & clean\_only & 81.89 & 65.67 & 61.36 & 51.13 \\
+Prophet & clean\_only & 78.04 & 53.51 & 46.96 & 30.82 \\
+SARIMAX & clean\_only & 71.97 & 53.98 & 41.48 & 30.45 \\
+SARIMAX & degraded & 69.65 & 53.06 & 39.57 & 31.64 \\
+Seasonal\_Naive & clean\_only & 114.44 & 81.14 & 64.33 & 55.09 \\
+TabPFN & clean\_only & 100.23 & 67.26 & 53.92 & 38.97 \\
+TabPFN & degraded & 100.42 & 69.09 & 54.07 & 37.19 \\
+TabPFN\_NoWeather & clean\_only & 102.65 & 78.64 & 65.58 & 36.96 \\
+XGBoost & clean\_only & 89.89 & 60.02 & 50.33 & 47.99 \\
+XGBoost & degraded & 90.19 & 65.08 & 52.12 & 47.23 \\
+XGBoost\_NoWeather & clean\_only & 93.96 & 76.46 & 64.05 & 48.52 \\
+\bottomrule
+\end{tabular}
+\end{table}

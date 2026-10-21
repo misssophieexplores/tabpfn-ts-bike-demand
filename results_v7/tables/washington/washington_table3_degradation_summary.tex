@@ -1,0 +1,15 @@
+\begin{table}[h]
+\centering
+\caption{Performance degradation — washington. MAE: geometric mean across horizons; Increase \%: geometric mean of the per-horizon degraded/clean ratios.}
+\label{tab:degradation_summary_washington}
+\begin{tabular}{lrrrr}
+\toprule
+Model & Clean MAE & Degraded MAE & Increase & Increase \% \\
+\midrule
+XGBoost & 52.07 & 52.79 & 0.71 & 1.37 \\
+SARIMAX & 91.53 & 93.10 & 1.57 & 1.72 \\
+NeuralProphet & 90.00 & 92.98 & 2.98 & 3.31 \\
+TabPFN & 45.16 & 47.86 & 2.70 & 5.98 \\
+\bottomrule
+\end{tabular}
+\end{table}

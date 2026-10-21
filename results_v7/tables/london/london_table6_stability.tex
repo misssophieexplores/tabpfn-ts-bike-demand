@@ -1,0 +1,25 @@
+\begin{table}[h]
+\centering
+\caption{Model stability — london: coefficient of variation (\%) of fold-level MAE, by forecast horizon.}
+\label{tab:stability_london}
+\begin{tabular}{llrrrr}
+\toprule
+Model & Scenario & 6h & 24h & 48h & 168h \\
+\midrule
+ARIMA & clean\_only & 39.82 & 19.43 & 18.55 & 15.77 \\
+NeuralProphet & clean\_only & 55.64 & 46.91 & 34.96 & 26.96 \\
+NeuralProphet & degraded & 54.34 & 44.45 & 33.29 & 25.03 \\
+NeuralProphet\_NoWeather & clean\_only & 70.65 & 50.02 & 45.67 & 35.25 \\
+Prophet & clean\_only & 56.38 & 26.82 & 20.94 & 12.79 \\
+SARIMAX & clean\_only & 93.45 & 61.81 & 42.09 & 13.33 \\
+SARIMAX & degraded & 88.47 & 58.67 & 41.67 & 14.94 \\
+Seasonal\_Naive & clean\_only & 117.70 & 80.21 & 56.48 & 26.98 \\
+TabPFN & clean\_only & 115.88 & 84.59 & 62.00 & 38.36 \\
+TabPFN & degraded & 109.71 & 80.09 & 57.91 & 37.32 \\
+TabPFN\_NoWeather & clean\_only & 118.52 & 80.60 & 61.74 & 42.20 \\
+XGBoost & clean\_only & 115.19 & 77.03 & 60.77 & 41.85 \\
+XGBoost & degraded & 113.87 & 75.25 & 59.59 & 40.39 \\
+XGBoost\_NoWeather & clean\_only & 116.24 & 75.14 & 60.98 & 41.69 \\
+\bottomrule
+\end{tabular}
+\end{table}

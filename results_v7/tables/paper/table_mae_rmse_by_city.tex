@@ -1,0 +1,26 @@
+\begin{table}[!htbp]
+\centering
+\caption{MAE and RMSE (bikes per hour) per city, observed weather, geometric mean over the four forecast horizons. Mean hourly demand over the full dataset period: 740 (Seoul), 1{,}142 (London), and 188 (Washington) bikes.}\label{tab:mae_rmse_city}
+% Source: comprehensive_results_analysis_v7 notebook, Section 7d; results_v7/tables/paper/table_mae_rmse_by_city.tex (generated, do not edit the numbers by hand); mean demand: all hours of each dataset
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
+\toprule
+ & \multicolumn{2}{c}{Seoul} & \multicolumn{2}{c}{London} & \multicolumn{2}{c}{Washington} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+Model & MAE & RMSE & MAE & RMSE & MAE & RMSE \\
+\midrule
+Tab\-PFN & 190.5 & 263.7 & 209.1 & 317.2 & 45.2 & 65.4 \\
+XGBoost & 234.6 & 316.1 & 231.3 & 345.3 & 52.1 & 75.3 \\
+Tab\-PFN\_\-NoWeather & 278.4 & 375.0 & 251.3 & 366.9 & 53.6 & 77.2 \\
+XGBoost\_\-NoWeather & 271.6 & 365.1 & 252.8 & 372.1 & 55.3 & 80.0 \\
+Seasonal\_Naive & 334.4 & 446.1 & 417.9 & 628.3 & 88.0 & 122.5 \\
+SARIMAX & 321.5 & 401.2 & 437.7 & 586.6 & 91.5 & 115.7 \\
+Neural\-Prophet\_NoWeather & 382.4 & 474.2 & 430.5 & 547.4 & 87.6 & 111.2 \\
+Neural\-Prophet & 325.5 & 402.7 & 493.4 & 616.9 & 90.0 & 113.5 \\
+Prophet & 341.1 & 435.6 & 519.5 & 697.3 & 96.8 & 127.2 \\
+ARIMA & 502.8 & 606.0 & 835.5 & 1{,}052.2 & 150.0 & 187.0 \\
+\bottomrule
+\end{tabular*}
+\par\smallskip{\raggedright\footnotesize Rows in the order of the overall ranking (Table~\ref{tab:cross_city_overall_ranking}).\par}
+\end{table}

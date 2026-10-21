@@ -1,0 +1,11 @@
+model,weather_input,MASE,vs_SeasonalNaive_%,vs_NoWeather_%,tasks_better_than_NoWeather,vs_NoWeather_%_h6,vs_NoWeather_%_h24,vs_NoWeather_%_h48,vs_NoWeather_%_h168,in_bar_chart
+TabPFN,forecast,0.629,-43.2,-15.5,12/12,-8.0,-18.2,-17.5,-17.8,True
+XGBoost,forecast,0.703,-36.5,-6.7,12/12,-6.4,-7.2,-7.7,-5.6,True
+TabPFN_NoWeather,none,0.744,-32.8,,,,,,,True
+XGBoost_NoWeather,none,0.753,-31.9,,,,,,,True
+Seasonal_Naive,none,1.107,0.0,,,,,,,False
+SARIMAX,forecast,1.148,3.8,,,,,,,False
+NeuralProphet_NoWeather,none,1.164,5.2,,,,,,,True
+NeuralProphet,forecast,1.231,11.2,5.7,6/12,12.8,1.2,8.4,0.9,True
+Prophet,none,1.235,11.6,,,,,,,False
+ARIMA,none,1.902,71.9,,,,,,,False

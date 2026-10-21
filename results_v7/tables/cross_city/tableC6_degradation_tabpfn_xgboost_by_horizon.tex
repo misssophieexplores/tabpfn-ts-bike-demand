@@ -1,0 +1,17 @@
+\begin{table}
+\centering
+\caption{Weather degradation impact on TabPFN and XGBoost across horizons (MASE, geometric mean over cities; last row: over all city--horizon combinations).}
+\label{tab:degradation_tabpfn_xgboost_by_horizon}
+\begin{tabular}{crrrr}
+\toprule
+Horizon & TabPFN Clean & TabPFN Degraded (\%) & XGBoost Clean & XGBoost Degraded (\%) \\
+\midrule
+6 & 0.461 & 0.496 (+7.7\%) & 0.578 & 0.591 (+2.3\%) \\
+24 & 0.607 & 0.638 (+5.2\%) & 0.688 & 0.703 (+2.1\%) \\
+48 & 0.657 & 0.694 (+5.7\%) & 0.734 & 0.747 (+1.8\%) \\
+168 & 0.652 & 0.712 (+9.1\%) & 0.764 & 0.786 (+2.9\%) \\
+\midrule
+Geo.\ mean & 0.588 & 0.629 (+6.9\%) & 0.687 & 0.703 (+2.3\%) \\
+\bottomrule
+\end{tabular}
+\end{table}

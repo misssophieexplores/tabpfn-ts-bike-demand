@@ -1,0 +1,25 @@
+\begin{table}[h]
+\centering
+\caption{Model stability — washington: coefficient of variation (\%) of fold-level MAE, by forecast horizon.}
+\label{tab:stability_washington}
+\begin{tabular}{llrrrr}
+\toprule
+Model & Scenario & 6h & 24h & 48h & 168h \\
+\midrule
+ARIMA & clean\_only & 42.85 & 17.73 & 15.25 & 12.09 \\
+NeuralProphet & clean\_only & 64.99 & 45.81 & 46.46 & 42.78 \\
+NeuralProphet & degraded & 64.03 & 46.92 & 45.90 & 38.94 \\
+NeuralProphet\_NoWeather & clean\_only & 59.35 & 42.86 & 33.82 & 29.26 \\
+Prophet & clean\_only & 58.06 & 28.83 & 22.09 & 11.14 \\
+SARIMAX & clean\_only & 68.17 & 50.26 & 37.67 & 16.54 \\
+SARIMAX & degraded & 67.31 & 49.15 & 37.96 & 18.62 \\
+Seasonal\_Naive & clean\_only & 102.10 & 69.48 & 55.96 & 26.84 \\
+TabPFN & clean\_only & 97.72 & 68.43 & 56.41 & 45.74 \\
+TabPFN & degraded & 96.25 & 65.94 & 55.07 & 42.47 \\
+TabPFN\_NoWeather & clean\_only & 101.55 & 65.28 & 50.23 & 42.99 \\
+XGBoost & clean\_only & 93.86 & 60.92 & 44.27 & 32.13 \\
+XGBoost & degraded & 94.99 & 61.20 & 44.47 & 32.08 \\
+XGBoost\_NoWeather & clean\_only & 95.24 & 58.76 & 42.43 & 28.93 \\
+\bottomrule
+\end{tabular}
+\end{table}
