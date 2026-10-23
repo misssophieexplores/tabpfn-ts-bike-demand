@@ -9,6 +9,10 @@
   url = {https://open-meteo.com/}
 }
 
+Weather data by Open-Meteo.com (https://open-meteo.com/), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Changes made: hourly values re-aligned from standard time to the local clock (London, Washington; `build_weather_v7.py`); `precipitation_mm` = rain + snowfall / 0.7; snow depth converted from m to cm; `solar_radiation_mjm2` = W/m² × 0.0036.
+
+The NWP calibration (`forecasting/weather/nwp/calibration/`) is derived from ECMWF IFS HRES forecasts (European Centre for Medium-Range Weather Forecasts), obtained through the Open-Meteo Single Runs API and licensed under CC BY 4.0 (https://www.ecmwf.int/en/forecasts/datasets/open-data). Changes made: the forecasts were compared with station observations and only the resulting error statistics are stored; the forecasts themselves are not included.
+
 ## Visibility (London, Washington):
 @software{VisualCrossing_Weather_API,
   author = {{Visual Crossing Corporation}},
@@ -18,9 +22,7 @@
   note = {Visibility (visibility_km) for London (2015-2017) and Washington (2011-2012), locations London,UK and Washington,DC (add_visibility.py). No other weather values come from Visual Crossing}
 }
 
-Visibility data for London and Washington are from Visual Crossing Weather (https://www.visualcrossing.com). Their licence does not allow redistributing the raw values, so they are not included. Run data/add_visibility.py with your own Visual Crossing API key (environment variable VISUALCROSSING_KEY) to add the column visibility_km to data/LondonBikeData.csv and data/WashingtonBikeData.csv.
-
-LondonBikeData.csv and WashingtonBikeData.csv are not included. To rebuild them, run `python data/rebuild_london_washington.py` from the repository root (needs VISUALCROSSING_KEY): it runs the steps in data/provenance/README.md, then data/add_visibility.py, then data/build_weather_v7.py, unchanged.
+Visibility data for London and Washington are from Visual Crossing Weather (https://www.visualcrossing.com). Their licence does not allow redistributing the raw values, so they are not included. Run data/rebuild_london_washington.py with your own Visual Crossing API key (environment variable VISUALCROSSING_KEY) to rebuild data/LondonBikeData.csv and data/WashingtonBikeData.csv, including the column visibility_km. It runs the steps in data/provenance/README.md, then data/add_visibility.py, then data/build_weather_v7.py, unchanged.
 
 Visual Crossing may revise historical data, so rebuilt visibility values, and the results that depend on them, may differ slightly from those reported in the paper.
 
@@ -41,15 +43,14 @@ The official data.go.kr catalogue describes the ASOS service as free and lists t
 ## Copernicus Climate Change Service / ERA5 and ERA5-Land
 
 - **Source:** Copernicus Climate Change Service (C3S), operated by ECMWF
-- **Official licence:** https://apps.ecmwf.int/datasets/licences/copernicus/
+- **Official licence:** https://apps.ecmwf.int/datasets/licences/copernicus/ ("Licence to use Copernicus Products", https://object-store.os-api.cci2.ecmwf.int/cci2-prod-catalogue/licences/licence-to-use-copernicus-products/licence-to-use-copernicus-products_b4b9451f54cffa16ecef5c912c9cebd6979925a956e3fa677976e0cf198c2c18.pdf)
 - **Licence:** Free of charge, worldwide, non-exclusive, royalty-free and perpetual; attribution required.
 - **Official licence text:** `Access to Copernicus Products is given for any purpose in so far as it is lawful`, including reproduction, distribution, communication to the public, adaptation, modification and combination with other data.
 - **Academic/publication use:** Permitted. Publications using modified/adapted Copernicus products must provide the required Copernicus attribution and disclaimer.
 
-Suggested attribution from the licence for modified products:
-`Contains modified Copernicus Climate Change Service information [Year].`
+ERA5 and ERA5-Land values (via Open-Meteo: `open_meteo/`, `snow_depth_cm`, the reference data of the NWP calibration), as required by clause 5 of the licence:
 
-The licence also requires a statement that neither the European Commission nor ECMWF is responsible for any use that may be made of the Copernicus information or data.
+Generated using Copernicus Climate Change Service information 2026. Contains modified Copernicus Climate Change Service information 2026. Neither the European Commission nor ECMWF is responsible for any use that may be made of the Copernicus information or data it contains.
 
 ## NOAA / NCEI Integrated Surface Database (ISD)
 
