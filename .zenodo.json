@@ -1,0 +1,9 @@
+{
+  "title": "TabPFN-TS for Bike Demand Forecasting",
+  "upload_type": "software",
+  "description": "Code and results for the paper 'TabPFN-TS for Bike Demand Forecasting: Weather Covariate Integration and Performance under Weather Forecast Uncertainty'.",
+  "creators": [
+    {"name": "Dächer, Mayte Christina", "affiliation": "Universidade Nova de Lisboa"},
+    {"name": "Bação, Fernando", "affiliation": "Universidade Nova de Lisboa"}
+  ]
+}
