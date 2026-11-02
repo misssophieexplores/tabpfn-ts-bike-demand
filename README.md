@@ -20,6 +20,10 @@ TabPFN, TabPFN_NoWeather, XGBoost, XGBoost_NoWeather, Seasonal_Naive, ARIMA, SAR
 
 `data/LondonBikeData.csv` and `data/WashingtonBikeData.csv` are not included: they contain visibility values from Visual Crossing, whose licence does not allow redistributing them. Rebuild both with your own Visual Crossing API key: `VISUALCROSSING_KEY=... python data/rebuild_london_washington.py` (details in `data/README_WEATHER.md`).
 
+## Known issue: TabPFN-TS calendar features
+
+tabpfn-time-series encodes its calendar features with sine and cosine over `period − 1` instead of the period (`CalendarFeature.generate` in `tabpfn_time_series/features/basic_features.py`); this affects all current versions, including 1.0.9, which was used for all TabPFN results here. Hour 0 and hour 23 therefore get the same encoding, and so do Monday and Sunday. The maintainers confirmed the error and kept the encoding, because correcting it only at inference made their benchmark results slightly worse ([issue #145](https://github.com/PriorLabs/tabpfn-time-series/issues/145), [pull request #146](https://github.com/PriorLabs/tabpfn-time-series/pull/146)). The results in this repository use the library as published, without a correction.
+
 ## Setup and run
 
 ```bash
