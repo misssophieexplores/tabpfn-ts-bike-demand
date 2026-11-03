@@ -1,0 +1,26 @@
+\begin{table}[ht!]
+\centering
+\caption{Comparisons answering the research questions. Change: MASE of the first against the second, computed for each city--horizon combination and averaged geometrically over all 12 (negative: lower error); difference rows in percentage points. Interval: 95\,\% week block bootstrap. Tasks: combinations with a negative value.}
+\label{tab:rq_intervals}
+{\small
+\begin{tabular}{llrrr}
+\toprule
+RQ & Comparison & Change (\%) & 95\,\% interval & Tasks \\
+\midrule
+RQ1 & TabPFN vs XGBoost, both without weather & $-10.3$ & $-13.8$ to $-6.5$ & 12/12 \\
+ & TabPFN vs XGBoost, both with observed weather & $-28.3$ & $-31.7$ to $-24.9$ & 12/12 \\
+ & TabPFN vs XGBoost, both with forecast weather & $-23.5$ & $-26.6$ to $-20.2$ & 12/12 \\
+\midrule
+RQ2 & TabPFN: observed weather vs no weather & $-27.1$ & $-29.8$ to $-24.6$ & 12/12 \\
+ & XGBoost: observed weather vs no weather & $-8.8$ & $-10.7$ to $-6.9$ & 12/12 \\
+ & Difference TabPFN minus XGBoost (points) & $-18.3$ & $-20.6$ to $-15.9$ & 12/12 \\
+\midrule
+RQ3 & TabPFN: forecast weather vs observed weather & $+9.1$ & $+7.8$ to $+10.6$ & 0/12 \\
+ & XGBoost: forecast weather vs observed weather & $+2.3$ & $+1.6$ to $+3.0$ & 0/12 \\
+ & Difference TabPFN minus XGBoost (points) & $+6.8$ & $+5.6$ to $+8.1$ & 0/12 \\
+ & TabPFN: forecast weather vs no weather & $-20.4$ & $-22.9$ to $-17.9$ & 12/12 \\
+ & XGBoost: forecast weather vs no weather & $-6.7$ & $-8.3$ to $-5.2$ & 12/12 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}

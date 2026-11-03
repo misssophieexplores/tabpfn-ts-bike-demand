@@ -8,8 +8,8 @@ results/results_master_v7.csv (path relative to the repository root)
     Written by forecasting/run_experiments.py: one row per experiment, i.e.
     city (column `dataset`: seoul, london, washington) x model x horizon
     (6, 24, 48, 168 h) x weather scenario (clean_only = observed weather,
-    degraded = weather forecast errors). This script uses only the rows of
-    the 10 paper models (MODELS below).
+    degraded = weather forecast errors). Rows are appended after every
+    experiment. This script uses only the rows of the 10 paper models (MODELS below).
 
     These rows come from the main run of 7-10 Oct 2026
     (run 20261007_185700_98536, cluster jobs 303 and 304): 10 models x 3 cities
@@ -56,14 +56,24 @@ Output (relative to the repository root)
         cities, one row per model, one column per horizon
     and the same table printed to the screen, with checks.
 
+v7calfix (--v7calfix)
+---------------------
+    Reads results/results_master_v7calfix.csv and writes to results_v7calfix/tables/paper/.
+    In that file TabPFN and TabPFN_NoWeather are the runs with corrected calendar features
+    (forecasting/build_v7calfix.py); their rows come from the CalFix run of 2-3 Nov 2026
+    (same job resources: 16 CPU cores, 32 GB, CPU only) and are accepted from that run's
+    time window instead of the main run's. All other checks are unchanged.
+
 Run
 ---
     python analysis_visualizations/effort_forecast_runtime.py
+    python analysis_visualizations/effort_forecast_runtime.py --v7calfix
     (from any folder; the repository root is found by looking for
     results/results_master_v7.csv in the script's folder and every folder
     above it. In a notebook cell the search starts in the working folder.)
 """
 
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -95,6 +105,17 @@ FOLDS_PER_HORIZON = {6: 980, 24: 245, 48: 123, 168: 35}
 # The main run (jobs 303 and 304) wrote its rows between these two times
 MAIN_RUN_START = pd.Timestamp("2026-10-07 18:57:00")
 MAIN_RUN_END = pd.Timestamp("2026-10-10 21:21:00")
+# Models whose rows come from another run: model -> (start, end) of that run (set by use_v7calfix)
+OTHER_RUNS = {}
+CALFIX_RUN = (pd.Timestamp("2026-11-02 08:00:00"), pd.Timestamp("2026-11-03 07:00:00"))
+
+
+def use_v7calfix() -> None:
+    """Switch to results_master_v7calfix.csv / results_v7calfix/ (see the header)."""
+    global RESULTS_FILE, OUTPUT_DIR
+    RESULTS_FILE = Path("results") / "results_master_v7calfix.csv"
+    OUTPUT_DIR = Path("results_v7calfix") / "tables" / "paper"
+    OTHER_RUNS.update({"TabPFN": CALFIX_RUN, "TabPFN_NoWeather": CALFIX_RUN})
 
 KEY = ["dataset", "model", "horizon", "weather_scenario"]
 RUNTIME_COLUMNS = [
@@ -143,12 +164,14 @@ def load_paper_rows(path: Path) -> pd.DataFrame:
             f"Unexpected experiments: {sorted(found - expected)}"
         )
 
-    # All rows from the main run of 7-10 Oct 2026
-    outside = df[(df["timestamp"] < MAIN_RUN_START) | (df["timestamp"] > MAIN_RUN_END)]
+    # All rows from the main run of 7-10 Oct 2026 (models in OTHER_RUNS: from their run)
+    start = df["model"].map(lambda m: OTHER_RUNS.get(m, (MAIN_RUN_START, MAIN_RUN_END))[0])
+    end = df["model"].map(lambda m: OTHER_RUNS.get(m, (MAIN_RUN_START, MAIN_RUN_END))[1])
+    outside = df[(df["timestamp"] < start) | (df["timestamp"] > end)]
     if len(outside):
         raise ValueError(
             f"{len(outside)} rows were not written by the main run "
-            f"({MAIN_RUN_START} to {MAIN_RUN_END}):\n"
+            f"({MAIN_RUN_START} to {MAIN_RUN_END}) or the run named in OTHER_RUNS:\n"
             + outside[KEY + ["timestamp"]].to_string(index=False)
         )
 
@@ -185,6 +208,8 @@ def degraded_vs_clean(df: pd.DataFrame) -> pd.Series:
 
 
 def main() -> None:
+    if "--v7calfix" in sys.argv[1:]:
+        use_v7calfix()
     root = find_repo_root()
     df = load_paper_rows(root / RESULTS_FILE)
 
@@ -199,9 +224,10 @@ def main() -> None:
     table = per_fold_table(df)
     table.round(3).to_csv(table_file)
 
-    print(f"Input: {RESULTS_FILE} | {len(df)} rows (10 models, main run "
+    print(f"Input: {RESULTS_FILE} | {len(df)} rows (10 models, rows written "
           f"{df['timestamp'].min():%d %b %H:%M} to {df['timestamp'].max():%d %b %Y %H:%M}) | "
-          f"code: {', '.join(sorted(df['git_commit'].astype(str).unique()))}")
+          f"code: {', '.join(sorted(df['git_commit'].astype(str).unique()))}"
+          + (f" | from another run: {', '.join(OTHER_RUNS)}" if OTHER_RUNS else ""))
     print()
     print("Seconds per fold (fit + predict), observed weather, mean of 3 cities")
     print("(SARIMAX: one core per fold; all other models: 16 cores)")

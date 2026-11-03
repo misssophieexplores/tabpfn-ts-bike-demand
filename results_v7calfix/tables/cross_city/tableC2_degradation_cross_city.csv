@@ -1,0 +1,13 @@
+dataset,model,degradation_%
+seoul,XGBoost,3.15
+seoul,SARIMAX,3.33
+seoul,TabPFN,11.87
+seoul,NeuralProphet,5.92
+london,XGBoost,2.43
+london,SARIMAX,3.26
+london,TabPFN,9.27
+london,NeuralProphet,7.74
+washington,XGBoost,1.33
+washington,SARIMAX,1.58
+washington,TabPFN,6.31
+washington,NeuralProphet,3.03

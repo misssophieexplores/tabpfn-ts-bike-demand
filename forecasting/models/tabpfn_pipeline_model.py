@@ -13,6 +13,10 @@ The TabPFN model is pinned to TabPFN v2.5 (TABPFN_MODEL_CONFIG). Without the
 pin, the checkpoint depends on the installed tabpfn-time-series version
 (e.g. 1.0.10: TabPFN v2; 1.1.0 and 1.2.0: TabPFN v3; 1.3.0: TabPFN v3.5).
 
+Both use the corrected calendar features (calendar_fix.CALFIX_FEATURES): the
+library's CalendarFeature divides by period - 1, so hour 23 = hour 0 and
+Sunday = Monday; everything else is the library default.
+
 Both set needs_datetime = True so run_experiments.py attaches a real
 DatetimeIndex to X_train/X_test from the dataset's date column.
 """
@@ -34,6 +38,7 @@ from typing import Optional
 
 from models.base import BaseForecaster
 from tabpfn_time_series import TabPFNTSPipeline, TabPFNMode
+from models.calendar_fix import CALFIX_FEATURES
 
 # TabPFN v2.5 regressor, default checkpoint (tabpfn downloads it on first use)
 TABPFN_MODEL_CONFIG = {"model_path": "tabpfn-v2.5-regressor-v2.5_default.ckpt"}
@@ -91,6 +96,7 @@ class TabPFNPipelineForecaster(BaseForecaster):
         self.pipeline = TabPFNTSPipeline(
             tabpfn_mode=self.tabpfn_mode,
             tabpfn_model_config=TABPFN_MODEL_CONFIG,
+            temporal_features=CALFIX_FEATURES,
         )
         self._is_fitted = True
 
@@ -176,6 +182,7 @@ class TabPFNPipelineForecaster_NoWeather(BaseForecaster):
         self.pipeline = TabPFNTSPipeline(
             tabpfn_mode=self.tabpfn_mode,
             tabpfn_model_config=TABPFN_MODEL_CONFIG,
+            temporal_features=CALFIX_FEATURES,
         )
         self._is_fitted = True
 

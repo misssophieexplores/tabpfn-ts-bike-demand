@@ -1,0 +1,15 @@
+\begin{table}[h]
+\centering
+\caption{Performance degradation — london. MAE: geometric mean across horizons; Increase \%: geometric mean of the per-horizon degraded/clean ratios.}
+\label{tab:degradation_summary_london}
+\begin{tabular}{lrrrr}
+\toprule
+Model & Clean MAE & Degraded MAE & Increase & Increase \% \\
+\midrule
+XGBoost & 231.32 & 237.10 & 5.78 & 2.50 \\
+SARIMAX & 437.75 & 452.74 & 14.99 & 3.42 \\
+NeuralProphet & 493.38 & 533.20 & 39.83 & 8.07 \\
+TabPFN & 169.24 & 186.00 & 16.76 & 9.91 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -58,6 +58,9 @@ Run
 ---
    python analysis_visualizations/effort_forecast_runtime.py   (optional: its own outputs)
    python analysis_visualizations/make_tab_effort.py
+   python analysis_visualizations/make_tab_effort.py --v7calfix
+      (results_master_v7calfix.csv -> results_v7calfix/tables/paper/; TabPFN rows from the
+       CalFix run, see effort_forecast_runtime.py)
    (from any folder; also works pasted into a notebook cell whose working
    folder is inside the repository)
 """
@@ -225,7 +228,8 @@ def to_latex(table: pd.DataFrame, tuning: pd.DataFrame, max_degraded_pct: float)
         f"{', '.join(untuned[:-1])} and {untuned[-1]} are not tuned. "
         "Forecasting: time to fit the model and forecast one test window, mean over all "
         "folds and the three cities with observed weather (with forecast weather the "
-        f"times differ by at most {max_degraded_pct:.0f}\\,\\%), in one run with "
+        f"times differ by at most {max_degraded_pct:.0f}\\,\\%), "
+        f"{'in runs' if efr.OTHER_RUNS else 'in one run'} with "
         f"{FORECAST_JOB_CORES} CPU cores; SARIMAX fitted {FORECAST_JOB_CORES} folds at a "
         "time, each on one core, all other models one fold at a time with all cores. "
         f"All runs on CPU, on {HARDWARE}."
@@ -281,6 +285,10 @@ def stability(forecast: pd.DataFrame) -> pd.DataFrame:
 
 
 def main() -> None:
+    global OUTPUT_DIR
+    if "--v7calfix" in sys.argv[1:]:
+        efr.use_v7calfix()
+        OUTPUT_DIR = efr.OUTPUT_DIR
     root = efr.find_repo_root()
     forecast = efr.load_paper_rows(root / efr.RESULTS_FILE)
     tuning = tuning_times(root)

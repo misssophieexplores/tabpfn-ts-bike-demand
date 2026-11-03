@@ -8,7 +8,11 @@ Daily rentals per city BEFORE imputation: the daily sum of the recorded hours.
 Hours with Functioning Day == "No" are the imputed hours; they are left out of the sum
 (Seoul: the system was closed, the original count is 0; London, Washington: no record).
 Periods are counted back from the last hour of each dataset.
+
+--v7calfix: write to results_v7calfix/figures/paper/fig_datasets.pdf instead (the figure uses
+the data files only, so its content is the same).
 """
+import sys
 from pathlib import Path
 
 import matplotlib as mpl
@@ -31,7 +35,8 @@ def find_up(start, rel):
 # Script: the folder of this file. Notebook (no __file__): the notebook's working folder.
 HERE = Path(__file__).resolve().parent if "__file__" in globals() else Path.cwd().resolve()
 DATA_DIR = find_up(HERE, "data/SeoulBikeData.csv").parent
-OUT_FILE = find_up(HERE, "results_v7") / "figures" / "paper" / "fig_datasets.pdf"
+_OUT_ROOT = "results_v7calfix" if "--v7calfix" in sys.argv[1:] else "results_v7"
+OUT_FILE = find_up(HERE, _OUT_ROOT) / "figures" / "paper" / "fig_datasets.pdf"
 
 # name, file, timestamp column, target column, panel title
 CITIES = [

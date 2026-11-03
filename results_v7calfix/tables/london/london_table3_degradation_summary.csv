@@ -1,0 +1,5 @@
+Model,Clean_MAE,Degraded_MAE,Increase,Increase_%
+XGBoost,231.32,237.1,5.78,2.5
+SARIMAX,437.75,452.74,14.99,3.42
+NeuralProphet,493.38,533.2,39.83,8.07
+TabPFN,169.24,186.0,16.76,9.91

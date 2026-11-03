@@ -1,0 +1,11 @@
+model,Rank,sMAPE,MASE,delta_MASE,Skill_pct
+TabPFN,1,21.4,0.492,,55.5
+TabPFN_NoWeather,2,27.0,0.675,0.183,39.0
+XGBoost,3,27.6,0.687,0.195,37.9
+XGBoost_NoWeather,4,29.0,0.753,0.261,31.9
+Seasonal_Naive,5,43.1,1.107,0.614,0.0
+SARIMAX,6,49.8,1.118,0.626,-1.0
+NeuralProphet_NoWeather,7,57.5,1.164,0.672,-5.2
+NeuralProphet,8,59.1,1.166,0.674,-5.4
+Prophet,9,54.6,1.235,0.742,-11.6
+ARIMA,10,69.4,1.902,1.41,-71.9
