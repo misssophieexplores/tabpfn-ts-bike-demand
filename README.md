@@ -22,27 +22,9 @@ TabPFN, TabPFN_NoWeather, XGBoost, XGBoost_NoWeather, Seasonal_Naive, ARIMA, SAR
 
 ## Note on the TabPFN-TS calendar features
 
-**Problem.** In `tabpfn-time-series` (we use 1.0.9; unchanged up to 1.4.0), `CalendarFeature.generate`
-encodes each calendar index *x* ∈ {0, …, P−1} as sin/cos(2π·x / (P − 1)) instead of sin/cos(2π·x / P).
-Because the indices already start at 0, the last value of each cycle lands on the same angle as the first:
-23:00 and 00:00, Sunday and Monday, December and January, and 31 December and 1 January get identical
-features. The model therefore cannot distinguish, for example, a Sunday from a Monday through the calendar
-features. `forecasting/testing/tabpfn_ts_calendar_features.py` prints the collisions
-(tables in `results/tabpfn_ts_calendar_check/`).
+**Problem.** `tabpfn-time-series` (1.0.9 used here; unchanged up to 1.4.0) encodes its calendar features as sin/cos(2πx/(P−1)) instead of sin/cos(2πx/P). The last value of each cycle therefore gets the same features as the first: 23:00 and 00:00, Sunday and Monday, December and January. The maintainers have confirmed the issue (GitHub issue #145).
 
-**Fix.** `forecasting/models/calendar_fix.py` replaces only this feature by the conventional encoding
-sin/cos(2π·x / P), passed to the pipeline through its `temporal_features` argument. Model, checkpoint
-(TabPFN v2.5), inputs, folds and all other features (running index, automatic seasonal features) are unchanged.
-
-**Why we apply it.** The issue is acknowledged by the maintainers (GitHub issue #145). They did not merge the
-correction (PR #146), because on 12 GIFT-Eval datasets it slightly worsened their default configuration
-(about +0.6 % MASE). On our task, hourly bike demand with strong weekday/weekend and daily patterns,
-the corrected encoding lowers the error in all 48 city × horizon × setting combinations (MASE −16 % with
-observed weather, −15 % with forecast weather, −9 % without weather). We report TabPFN-TS with the corrected features;
-the results with the library's encoding are in the previous versions of this archive on Zenodo.
-
-**Scope.** Only TabPFN-TS (v2.5) is affected in this study. The baselines (XGBoost, Prophet, SARIMAX, …)
-do not use these features.
+**Fix.** We fix the encoding for all TabPFN-TS results in this repository: `forecasting/models/calendar_fix.py` replaces only the calendar feature with sin/cos(2πx/P). Model (TabPFN v2.5), inputs, folds and all other features are unchanged. `forecasting/testing/tabpfn_ts_calendar_features.py` shows the collisions (tables in `results/tabpfn_ts_calendar_check/`). The other models do not use these features and are not affected.
 
 ## Changes in this version
 
