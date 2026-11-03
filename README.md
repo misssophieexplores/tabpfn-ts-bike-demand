@@ -61,4 +61,4 @@ The last cell of the notebook (daily rentals per city), `make_fig_datasets.py` a
 
 ## Disclaimer
 
-Weather data may be inaccurate or incomplete. The data and results in this repository are provided as is, without any guarantee of accuracy, completeness or suitability for any purpose, and must not be used as the sole basis for critical decisions.
+Weather data may be inaccurate or incomplete; data and results are provided as is.
